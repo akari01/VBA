@@ -1,0 +1,12 @@
+Sub clear_space()
+    Dim cel As Range
+    Dim str As String
+    'No need to declare string'
+    
+    For Each cel In Selection.Cells
+        Debug.Print "Before: " & CStr(cel.Value)
+        cel.Value = Replace(cel.Value, " ", "")
+        Debug.Print " After: " & cel.Value 
+    Next cel
+
+End Sub
