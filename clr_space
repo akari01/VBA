@@ -1,0 +1,12 @@
+Sub clear_space()
+    Dim cel As Range
+    Dim str As String
+    
+    For Each cel In Selection.Cells
+        Debug.Print "Before: " & CStr(cel.Value)
+        cel.Value = Trim(cel.Value)
+        'cel.Value = Trim(cel.Value)will remove spaces in the beggining and the end of the string'
+        Debug.Print " After: " & cel.Value 'May error if cel.value is a number?
+    Next cel
+
+End Sub
