@@ -1,0 +1,19 @@
+Sub print_CelValueAndAddress_practice()
+    Dim cel As Range
+    
+    'Dim selectedRange As Range
+    'Set selectedRange = Application.Selection
+    'For Each cel In selectedRange.Cells'
+    
+    For Each cel In Selection.Cells
+    
+    'why does it work without application?'
+    'For loop can declare variable as comes along'
+    'For Each statement will Repeats a group of statements for each element in an array or collection'
+    
+        Debug.Print cel.Address, cel.Value
+    'Debug will display the result in debug window'
+    
+    Next cel
+
+End Sub
