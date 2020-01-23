@@ -1,0 +1,20 @@
+Sub piechart()
+    Dim i As Long
+        For i = 1 To ActiveSheet.ChartObjects.Count
+            With ActiveSheet.ChartObjects(i).Chart.SeriesCollection(1)
+                For j = 1 To .Points.Count
+                    .Points(j).Interior.Color = Cells(j, 1).Interior.Color
+                    .Points(j).HasDataLabel = True
+                    If .Points(j).DataLabel.Text = "0" Then 'Check if there is a value
+                        .Points(j).HasDataLabel = False 'Remove the label
+                    Else
+                         'Format the Label
+                        .Points(j).ApplyDataLabels _
+                            ShowCategoryName:=True, _
+                            LegendKey:=True
+                    End If
+                    '.Points(j).ShowLegendKey = False
+                Next j
+            End With
+        Next i
+End Sub
