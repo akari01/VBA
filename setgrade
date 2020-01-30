@@ -1,0 +1,40 @@
+Sub set_grade()
+
+    Dim score As Integer
+    Dim cels As Range
+    
+    'score = ActiveCell.Value
+    'ActiveCell is whichever cell is currently selected
+    'Value refers to whatever you have typed inside the cell
+    
+    For Each cels In Range("B2:B22")
+        score = cels.Value
+        If score >= 90 And score <= 100 Then
+            cels(1, 2).Value = "A"
+            cels(1, 2).Interior.Color = RGB(0, 255, 0)
+            cels(1, 2).HorizontalAlignment = xlCenter
+            cels(1, 2).VerticalAlignment = xlCenter
+        
+        ElseIf score >= 75 And score < 90 Then
+            cels(1, 2).Value = "B"
+            cels(1, 2).Interior.Color = RGB(0, 0, 255)
+            cels(1, 2).HorizontalAlignment = xlCenter
+            cels(1, 2).VerticalAlignment = xlCenter
+        
+        ElseIf score >= 50 And score < 75 Then
+        
+            cels(1, 2).Value = "C"
+            cels(1, 2).Interior.Color = RGB(255, 0, 0)
+            cels(1, 2).HorizontalAlignment = xlCenter
+            cels(1, 2).VerticalAlignment = xlCenter
+        
+        Else
+            cels(1, 2).Value = "D"
+            cels(1, 2).HorizontalAlignment = xlCenter
+            cels(1, 2).VerticalAlignment = xlCenter
+            
+        End If
+    
+    Next cels
+        
+End Sub
