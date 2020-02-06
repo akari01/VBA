@@ -1,0 +1,43 @@
+Sub outlook()
+
+'1 get outlook application object for accessing anc controlling outlook from vba
+    Dim oaobject As outlook.Application '1-1 onject variable declaration, which stores onlt location of object
+    Set oaobject = New outlook.Application '1-2 get outlook application object using declared variable
+    
+    
+
+'2 find item in selected folder
+'3 copy subject and paste in excel column a
+'4 copy sender's name and paste in column b
+'5 copy table in body and paste in column c
+
+
+
+
+
+
+End Sub
+
+Sub outlook_CreateAndSend()
+
+'1 get outlook application object for accessing anc controlling outlook from vba
+    Dim oaobject As outlook.Application '1-1 object variable declaration, which stores onlt location of object
+    Set oaobject = New outlook.Application '1-2 get outlook application object using declared variable
+
+'2 Create mailitem object for mail operation as outlook has and can record schedule,task,and contacts
+    Dim mail As outlook.Mailitem '2-1 declare mail object variable
+    '2-2 Using Createitem method to make mailitem object;specify the createitem method's parameter( typr or value)
+    Set mailobject = oaobject.CreateItem(olMailitem)  'oaobject.CreateItem (0)
+    
+'3 Specify the mail contents by declaring mail object property
+    With mailobject
+        .To = "Akari.Shiga@tpgtelecom.com.au"
+        '.CC =
+        .Subject = "Test"
+        .Body = "Test" & .Range("B1").Value
+        .BodyFormat = olFormatPlain ' or olFormatHTML or OlFormatRichText
+'4 Send mail by mailitem.sendmethod
+        mailobject.Send
+    End With
+
+End Sub
