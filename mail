@@ -1,12 +1,13 @@
-Sub outlook()
+Sub Outlook()
 
 '1 get outlook application object for accessing anc controlling outlook from vba
-    Dim oaobject As outlook.Application '1-1 onject variable declaration, which stores onlt location of object
-    Set oaobject = New outlook.Application '1-2 get outlook application object using declared variable
+    Dim oaobject As Outlook.Application '1-1 onject variable declaration, which stores onlt location of object
+    Set oaobject = New Outlook.Application '1-2 get outlook application object using declared variable
     
     
 
 '2 find item in selected folder
+
 '3 copy subject and paste in excel column a
 '4 copy sender's name and paste in column b
 '5 copy table in body and paste in column c
@@ -20,24 +21,114 @@ End Sub
 
 Sub outlook_CreateAndSend()
 
-'1 get outlook application object for accessing anc controlling outlook from vba
-    Dim oaobject As outlook.Application '1-1 object variable declaration, which stores onlt location of object
-    Set oaobject = New outlook.Application '1-2 get outlook application object using declared variable
+    Dim rngTable1 As Range
+    
+    Set rngTable1 = ThisWorkbook.Sheets(1).Range("summaryTable")
+    'find data called xxx and select area, name as range
+    
+
+'1 get outlook application object for accessing and controlling outlook from vba
+    Dim oaobject As Outlook.Application '1-1 object variable declaration, which stores onlt location of object
+    Set oaobject = New Outlook.Application '1-2 get outlook application object using declared variable
+    
 
 '2 Create mailitem object for mail operation as outlook has and can record schedule,task,and contacts
-    Dim mail As outlook.Mailitem '2-1 declare mail object variable
+    Dim mail As Outlook.Mailitem '2-1 declare mail object variable
     '2-2 Using Createitem method to make mailitem object;specify the createitem method's parameter( typr or value)
     Set mailobject = oaobject.CreateItem(olMailitem)  'oaobject.CreateItem (0)
+    
+    Dim table As Range
+    Set table = Nothing
+    On Error Resume Next
+    Set table = Selection.SpecialCells(xlCellTypeVisible)
+    On Error GoTo 0
+    If table Is Nothing Then
+        MsgBox "Failed to set table range"
+        Exit Sub
+    End If
     
 '3 Specify the mail contents by declaring mail object property
     With mailobject
         .To = "Akari.Shiga@tpgtelecom.com.au"
         '.CC =
         .Subject = "Test"
-        .Body = "Test" & .Range("B1").Value
-        .BodyFormat = olFormatPlain ' or olFormatHTML or OlFormatRichText
-'4 Send mail by mailitem.sendmethod
-        mailobject.Send
+        '.Body = "Test" '.HTML Body and .body cannot be used at the same time
+        .BodyFormat = olFormatHTML ' or olFormatHTML or OlFormatRichText
+        .HTMLBody = "<html><body><p>This is a test run</p></body></html>" & Rangetohtml(table)
+        
+'4 Send mail by mailitem.sendmethod or display it before send by using mailitem.display mehtod
+        mailobject.Display
     End With
 
 End Sub
+
+Function Rangetohtml(table As Range)
+'Reference: http://www.rondebruin.nl/win/s1/outlook/bmail2.htm
+'1-1 object variable declaration, which stores only location of object
+'it has some types of variable including integer long(number) object single() double(decimal) cuurency
+'string(character) date, byte(0to255) boolean(True/false) object and variant( all data)
+
+    Dim t As Object
+    Dim fso As Object
+    Dim tempFile As String 'declare file name as string
+    Dim tempWorkbook As Workbook 'declare and create workbook which can temporary save figures as html. at this moment, the workbook is still remains as normal workbook
+    
+    'Specify directly where this file will be saved and its name and file type
+    'Environ function will return the string associated with an operating system environment variable
+    'Format returns a variant(string) containing an expression formatted according to instructions contained in a format expression
+    'Now function returns the currect date
+    
+    tempFile = Environ("Temp") & "\" & Format(Now, "dd-mm-yy h-mm-ss") & ".htm"
+
+'2 Copy the range and create a new workbook to paste the data in
+
+    table.Copy
+    Set tempWorkbook = Workbooks.Add(1) 'Create workbook
+    With tempWorkbook.Sheets(1) 'Specify worksheet
+    'expression.PasteSpecial (Format, Link, DisplayAsIcon,IconFileName, IconIndex, IconLabel, NoHTMLFormatting)
+        .Cells(1).PasteSpecial xlPasteColumnWidths  'or Paste:=8
+        'DisplayAsIcon: True to display the pasted data as an icon. The default value is False.
+        'IconFileName:  The name of the file that contains the icon to use if DisplayAsIcon is True.
+        .Cells(1).PasteSpecial xlPasteValues, , False, False
+        .Cells(1).PasteSpecial xlPasteFormats, , False, False
+        .Cells(1).Select
+        'Returns or sets the status of Cut or Copy mode. Can be True, False, or an XLCutCopyMode constant
+        Application.CutCopyMode = False 'False not in cut or copy mode
+        On Error Resume Next
+        '
+        .DrawingObjects.Visible = True
+        .DrawingObjects.Delete
+        On Error GoTo 0
+    End With
+    
+'3 Publish the worksheet to a htm file
+    'PublishObjects.add method will creates an object that represents an item in adocument saved to a webpage
+    'save figure as htm
+    'expression.Add (SourceType, FileName, Sheet, Source, HtmlType, DivID, Title)
+    With tempWorkbook.PublishObjects.Add( _
+            SourceType:=xlSourceRange, _
+            Filename:=tempFile, _
+            Sheet:=tempWorkbook.Sheets(1).Name, _
+            Source:=tempWorkbook.Sheets(1).UsedRange.Address, _
+            HtmlType:=xlHtmlStatic)
+        .Publish (True)
+    End With
+    
+'4 Read all data from the htm file into RangetoHTML
+
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set t = fso.GetFile(tempFile).OpenAsTextStream(1, -2)
+    Rangetohtml = t.readall
+    t.Close
+    Rangetohtml = Replace(Rangetohtml, " align=center x:publishsource=", "align=left x:publishsource=")
+    'Rangetohtml = Replace(Rangetohtml, " align=left x:publishsource=", "align=center x:publishsource=")
+    
+'5 Close workbook
+' Use  Workbook.close method and set as do not save since this file will be deleted
+    tempWorkbook.Close savechanges:=False
+    'Delete the htm file
+    Kill tempFile
+    Set t = Nothing
+    Set fso = Nothing
+    Set tempWorkbook = Nothing
+End Function
